@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Subject} from 'rxjs';
+import {Subject, PartialObserver, NextObserver} from 'rxjs';
 import { ICursor } from '../Utils/Cursors/ICursor';
 import { Pencil } from '../Utils/Cursors/Pencil';
 import CanvasAction from '../CanvasAction';
@@ -42,10 +42,7 @@ class Map extends React.Component<IProps, IState> {
 
     public componentDidMount(): void {
         const canvas = document.getElementById('map') as HTMLCanvasElement;
-        canvas.onmousedown = evt => this.props.currentCursor?.mousedown(evt);
-        canvas.onmousemove = evt => this.props.currentCursor?.mousemove(evt);
-        canvas.onmouseup = evt => this.props.currentCursor?.mouseup(evt);
-        this.props.currentCursor?.subscribe({
+        this.activateCursor(canvas, this.props.currentCursor, {
             next: canvasAction => this.state.actions.next(canvasAction)
         });
         this.setState(
@@ -68,9 +65,11 @@ class Map extends React.Component<IProps, IState> {
     }
 
     public enactHistory: CanvasActionEnactor = historyEnactor;
+    public activateCursor: CursorActivator = cursorActivator;
 };
 
 type CanvasActionEnactor = (canvas: HTMLCanvasElement | undefined, actions: CanvasAction) => void;
+type CursorActivator = (canvas: HTMLCanvasElement | undefined, cursor: ICursor | undefined, observer: NextObserver<CanvasAction>) => void;
 
 const historyEnactor: CanvasActionEnactor = (canvas, action) => {
     const context = canvas?.getContext('2d') as CanvasRenderingContext2D;
@@ -78,6 +77,15 @@ const historyEnactor: CanvasActionEnactor = (canvas, action) => {
     if (context) {
         action(context);
     }
+};
+
+const cursorActivator: CursorActivator = (canvas, cursor, observer) => {
+    if (!canvas || !cursor) return;
+
+    canvas.onmousedown = evt => cursor.mousedown(evt);
+    canvas.onmousemove = evt => cursor.mousemove(evt);
+    canvas.onmouseup = evt => cursor.mouseup(evt);
+    cursor.subscribe(observer);
 };
 
 export default Map;
