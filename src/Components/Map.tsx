@@ -1,13 +1,14 @@
 import * as React from 'react';
-import {Subject, PartialObserver, NextObserver} from 'rxjs';
+import {Subject, NextObserver} from 'rxjs';
 import { ICursor } from '../Utils/Cursors/ICursor';
 import { Pencil } from '../Utils/Cursors/Pencil';
 import { CanvasAction } from '../CanvasAction';
 import { BackgroundGrid } from '../Utils/Shapes/BackgroundGrid';
-
+import { CursorOptions } from '../Models/CursorOptions';
 
 interface IProps {
     currentCursor?: ICursor;
+    cursorOptions: CursorOptions;
 }
 
 interface IState {
@@ -42,9 +43,6 @@ class Map extends React.Component<IProps, IState> {
 
     public componentDidMount(): void {
         const canvas = document.getElementById('map') as HTMLCanvasElement;
-        this.activateCursor(canvas, this.props.currentCursor, {
-            next: canvasAction => this.state.actions.next(canvasAction)
-        });
         this.setState(
             {
                 map: canvas
@@ -56,19 +54,33 @@ class Map extends React.Component<IProps, IState> {
                     }
                 });
                 this.state.actions.next(new BackgroundGrid().draw);
+                this.activateCursor(this.state.map, this.props.currentCursor, {
+                    next: canvasAction => this.state.actions.next(canvasAction)
+                });
             }
         );
     }
 
     public componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<IState>): void {
         if (!this.state.map) return;
+
+        if (prevProps.currentCursor !== this.props.currentCursor) {
+            prevProps.currentCursor?.deactivate();
+            this.activateCursor(this.state.map, this.props.currentCursor, {
+                next: canvasAction => this.state.actions.next(canvasAction)
+            });
+        }
+
+        if (prevProps.cursorOptions !== this.props.cursorOptions) {
+            this.props.currentCursor?.setCursorOptions(this.props.cursorOptions);
+        }
     }
 
     public enactHistory: CanvasActionEnactor = historyEnactor;
     public activateCursor: CursorActivator = cursorActivator;
 };
 
-type CanvasActionEnactor = (canvas: HTMLCanvasElement | undefined, actions: CanvasAction) => void;
+type CanvasActionEnactor = (canvas: HTMLCanvasElement | undefined, action: CanvasAction) => void;
 type CursorActivator = (canvas: HTMLCanvasElement | undefined, cursor: ICursor | undefined, observer: NextObserver<CanvasAction>) => void;
 
 const historyEnactor: CanvasActionEnactor = (canvas, action) => {
