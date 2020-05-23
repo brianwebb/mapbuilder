@@ -32,7 +32,7 @@ class Map extends React.Component<IProps, IState> {
     public render() {
         return (
             <picture>
-                <canvas id="map" width={this.state.width} height={this.state.height}>
+                <canvas id='map' width={this.state.width} height={this.state.height}>
                     <noscript>Some text here to show to non JS browsers</noscript>
                 </canvas>
             </picture>
@@ -47,11 +47,11 @@ class Map extends React.Component<IProps, IState> {
     public enactHistory: CanvasActionEnactor = historyEnactor;
 };
 
-type CanvasActionEnactor = (canvas: HTMLCanvasElement, actions: CanvasAction[]) => void; 
+type CanvasActionEnactor = (canvas: HTMLCanvasElement, actions: CanvasAction[]) => void;
 
 const historyEnactor: CanvasActionEnactor = (canvas, actions) => {
     const context = canvas.getContext('2d') as CanvasRenderingContext2D;
-    
+
     if (context) {
         for (const canvasAction of actions) {
             canvasAction(context);
