@@ -1,7 +1,5 @@
-import CanvasAction from '../../CanvasAction';
+import { CanvasAction } from '../../CanvasAction';
 
-interface IShape {
+export interface IShape {
     draw: CanvasAction;
 }
-
-export default IShape;

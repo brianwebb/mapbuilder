@@ -1,5 +1,5 @@
 import { PartialObserver } from 'rxjs';
-import CanvasAction from '../../CanvasAction';
+import { CanvasAction } from '../../CanvasAction';
 
 export interface ICursor {
     mousedown(evt: MouseEvent): void;

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import MapBuilder from './Components/MapBuilder';
+import { MapBuilder } from './Components/MapBuilder';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(

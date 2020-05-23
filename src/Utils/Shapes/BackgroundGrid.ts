@@ -1,7 +1,7 @@
-import IShape from './IShape';
+import { IShape } from './IShape';
 import Grid from './../../Grid.svg';
 
-class BackgroundGrid implements IShape {
+export class BackgroundGrid implements IShape {
     draw(context: CanvasRenderingContext2D): void {
         const img = document.createElement('img');
         img.onload = () => {
@@ -11,5 +11,3 @@ class BackgroundGrid implements IShape {
         img.src = Grid;
     }
 }
-
-export default BackgroundGrid;

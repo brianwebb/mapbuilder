@@ -2,8 +2,8 @@ import * as React from 'react';
 import {Subject, PartialObserver, NextObserver} from 'rxjs';
 import { ICursor } from '../Utils/Cursors/ICursor';
 import { Pencil } from '../Utils/Cursors/Pencil';
-import CanvasAction from '../CanvasAction';
-import BackgroundGrid from '../Utils/Shapes/BackgroundGrid';
+import { CanvasAction } from '../CanvasAction';
+import { BackgroundGrid } from '../Utils/Shapes/BackgroundGrid';
 
 
 interface IProps {
