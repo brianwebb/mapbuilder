@@ -1,6 +1,7 @@
 import * as React from 'react';
+import {Subject} from 'rxjs';
 import { ICursor } from '../Utils/Cursors/ICursor';
-import { Pointer } from '../Utils/Cursors/Pointer';
+import { Pencil } from '../Utils/Cursors/Pencil';
 import CanvasAction from '../CanvasAction';
 import BackgroundGrid from '../Utils/Shapes/BackgroundGrid';
 
@@ -11,22 +12,22 @@ interface IProps {
 
 interface IState {
     height: number;
+    historyIndex: number;
     width: number;
     map?: HTMLCanvasElement;
-    actions: CanvasAction[];
+    actions: Subject<CanvasAction>;
 };
 
 class Map extends React.Component<IProps, IState> {
     public static defaultProps: Partial<IProps> = {
-        currentCursor: new Pointer()
+        currentCursor: new Pencil()
     };
 
     public state: IState = {
         height: 480,
+        historyIndex: 0,
         width: 640,
-        actions: [
-            new BackgroundGrid().draw
-        ]
+        actions: new Subject()
     };
 
     public render() {
@@ -40,22 +41,42 @@ class Map extends React.Component<IProps, IState> {
     }
 
     public componentDidMount(): void {
-        this.state.map = document.getElementById('map') as HTMLCanvasElement;
-        this.enactHistory(this.state.map, this.state.actions);
+        const canvas = document.getElementById('map') as HTMLCanvasElement;
+        canvas.onmousedown = evt => this.props.currentCursor?.mousedown(evt);
+        canvas.onmousemove = evt => this.props.currentCursor?.mousemove(evt);
+        canvas.onmouseup = evt => this.props.currentCursor?.mouseup(evt);
+        this.props.currentCursor?.subscribe({
+            next: canvasAction => this.state.actions.next(canvasAction)
+        });
+        this.setState(
+            {
+                map: canvas
+            },
+            () => {
+                this.state.actions.subscribe({
+                    next: actionState => {
+                        this.enactHistory(this.state.map, actionState)
+                    }
+                });
+                this.state.actions.next(new BackgroundGrid().draw);
+            }
+        );
+    }
+
+    public componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<IState>): void {
+        if (!this.state.map) return;
     }
 
     public enactHistory: CanvasActionEnactor = historyEnactor;
 };
 
-type CanvasActionEnactor = (canvas: HTMLCanvasElement, actions: CanvasAction[]) => void;
+type CanvasActionEnactor = (canvas: HTMLCanvasElement | undefined, actions: CanvasAction) => void;
 
-const historyEnactor: CanvasActionEnactor = (canvas, actions) => {
-    const context = canvas.getContext('2d') as CanvasRenderingContext2D;
+const historyEnactor: CanvasActionEnactor = (canvas, action) => {
+    const context = canvas?.getContext('2d') as CanvasRenderingContext2D;
 
     if (context) {
-        for (const canvasAction of actions) {
-            canvasAction(context);
-        }
+        action(context);
     }
 };
 

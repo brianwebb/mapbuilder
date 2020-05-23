@@ -1,4 +1,4 @@
-import CanvasAction from "../../CanvasAction";
+import CanvasAction from '../../CanvasAction';
 
 interface IShape {
     draw: CanvasAction;
