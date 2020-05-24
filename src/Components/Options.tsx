@@ -1,29 +1,39 @@
 import React, { ChangeEvent } from 'react';
 import { CursorOptions } from '../Models/CursorOptions';
 import './Options.scss';
+import { ICursor } from '../Utils/Cursors/ICursor';
+import { Pencil } from '../Utils/Cursors/Pencil';
+import { Line } from '../Utils/Cursors/Line';
 
 interface IProps {
-    cursorOptionsChange: (cursorOptions: CursorOptions) => void
+    cursorOptionsChange: (cursorOptions: CursorOptions) => void,
+    cursorChange: (cursor: ICursor) => void
 }
 
 interface IState {
-    cursorOptions: CursorOptions
+    cursorOptions: CursorOptions,
+    cursor: ICursor
 }
 
 class Options extends React.Component<IProps, IState> {
     public state: IState = {
-        cursorOptions: CursorOptions.default
+        cursorOptions: CursorOptions.default,
+        cursor: new Pencil()
     };
 
     constructor(props: IProps) {
         super(props);
-        this.lineColourChange = this.lineColourChange.bind(this);
+        this.valueChange = this.valueChange.bind(this);
     }
 
-    lineColourChange(event: ChangeEvent<HTMLFormElement>): void {
+    valueChange(event: ChangeEvent<HTMLFormElement>): void {
         const target = event.target;
         const value = target.value;
         const name = target.name;
+
+        if (name === 'cursor') {
+            this.setCursor(value);
+        }
 
         const updatedOptions: CursorOptions = {
             lineColour: name === 'lineColour' ? value : this.state.cursorOptions.lineColour,
@@ -40,9 +50,39 @@ class Options extends React.Component<IProps, IState> {
         );
     }
 
+    private setCursor(value: string): void {
+        let newCursor: ICursor;
+        switch (value) {
+            case 'Pencil':
+                newCursor = new Pencil();
+                break;
+            case 'Line':
+                newCursor = new Line();
+                break;
+            default:
+                throw new Error('Cursor not mapped');
+        }
+        this.setState(
+            {
+                cursor: newCursor
+            },
+            () => {
+                this.props.cursorChange(this.state.cursor);
+            }
+        );
+    }
+
     public render() {
         return (
-            <form id='options' onChange={this.lineColourChange}>
+            <form id='options' onChange={this.valueChange}>
+                <label>
+                    Pencil
+                    <input type='radio' name='cursor' value='Pencil' />
+                </label>
+                <label>
+                    Line
+                    <input type='radio' name='cursor' value='Line' />
+                </label>
                 <label>
                     Colour
                     <input type='color' name='lineColour' value={this.state.cursorOptions.lineColour} />

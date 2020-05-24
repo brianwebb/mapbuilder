@@ -5,9 +5,9 @@ import { CursorOptions } from '../../Models/CursorOptions';
 import { Point } from '../../Models/Point';
 
 export abstract class BaseCursor implements ICursor {
-    private _mouseEvents: MouseEvent[] = [];
     private _actions: Subject<CanvasObject> = new Subject();
     protected _cursorOptions: CursorOptions = CursorOptions.default;
+    protected _mouseEvents: MouseEvent[] = [];
 
     mousedown(mouseEvent: MouseEvent): void {
         this._mouseEvents.push(mouseEvent);
@@ -22,7 +22,10 @@ export abstract class BaseCursor implements ICursor {
     mouseup(mouseEvent: MouseEvent): void {
         this._mouseEvents.push(mouseEvent);
 
-        this.emitAction();
+        if (mouseEvent.button === 2) {
+            this._mouseEvents = [];
+            mouseEvent.stopImmediatePropagation();
+        }
     }
 
     setCursorOptions(cursorOptions: CursorOptions): void {
@@ -38,20 +41,24 @@ export abstract class BaseCursor implements ICursor {
         this._actions.complete();
     }
 
-    abstract buildPath(mouseEvents: MouseEvent[]): PathBuilder;
+    abstract buildPath(): PathBuilder;
 
-    private emitAction(): void {
+    protected emitAction(keepContext: boolean = false): void {
         if (!this._mouseEvents) return;
 
-        this._actions.next(new CanvasObject(this._cursorOptions, this.buildPath(this._mouseEvents)));
+        this._actions.next(new CanvasObject(this._cursorOptions, this.buildPath()));
 
-        this._mouseEvents = [];
+        const lastEvent = this._mouseEvents.pop()!;
+
+        this._mouseEvents = keepContext
+            ? [lastEvent]
+            : [];
     }
 
-    protected getCursorPosition(canvasBounds: DOMRect, mouseEvent: MouseEvent): Point {
+    protected getCursorPosition(canvasBounds: DOMRect, cursor: Point): Point {
         return {
-            x: mouseEvent.clientX - canvasBounds.left,
-            y: mouseEvent.clientY - canvasBounds.top
+            x: cursor.x - canvasBounds.left,
+            y: cursor.y - canvasBounds.top
         };
     }
 }

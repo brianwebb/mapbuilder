@@ -1,9 +1,9 @@
-import { ICursor } from './ICursor';
 import { BaseCursor } from './BaseCursor';
+import { ICursor } from './ICursor';
 import { PathBuilder } from '../../Models/CanvasObject';
 import { Point } from '../../Models/Point';
 
-export class Pencil extends BaseCursor implements ICursor {
+export class Line extends BaseCursor implements ICursor {
     mouseup(mouseEvent: MouseEvent): void {
         super.mouseup(mouseEvent);
 
@@ -11,10 +11,12 @@ export class Pencil extends BaseCursor implements ICursor {
     }
 
     buildPath(): PathBuilder {
-        const points: Point[] = this._mouseEvents.map(event => ({
-            x: event.clientX,
-            y: event.clientY
-        }));
+        const points: Point[] = this._mouseEvents
+            .filter(event => event.type === 'mousedown' || event.type === 'mouseup')
+            .map(event => ({
+                x: event.clientX,
+                y: event.clientY
+            }));
         return (canvasBounds: DOMRect) => {
             const path = new Path2D();
             for (const point of points) {
