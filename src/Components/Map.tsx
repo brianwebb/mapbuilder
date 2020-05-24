@@ -99,6 +99,8 @@ class Map extends React.Component<IProps, IState> {
                 prevState.map.removeEventListener('mousedown', prevProps.currentCursor.mousedown);
                 prevState.map.removeEventListener('mousemove', prevProps.currentCursor.mousemove);
                 prevState.map.removeEventListener('mouseup', prevProps.currentCursor.mouseup);
+                document.removeEventListener('mouseup', prevProps.currentCursor.mouseup);
+                document.removeEventListener('mousemove', prevProps.currentCursor.mouseup);
             }
 
             const map = this.findMap();
@@ -107,6 +109,8 @@ class Map extends React.Component<IProps, IState> {
                 map.onmousedown = this.props.currentCursor.mousedown.bind(this.props.currentCursor);
                 map.onmousemove = this.props.currentCursor.mousemove.bind(this.props.currentCursor);
                 map.onmouseup = this.props.currentCursor.mouseup.bind(this.props.currentCursor);
+                document.onmouseup = this.props.currentCursor.mouseup.bind(this.props.currentCursor);
+                document.onmousemove = this.props.currentCursor.mousemove.bind(this.props.currentCursor);
             }
 
             return {
