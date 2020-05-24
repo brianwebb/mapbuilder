@@ -12,11 +12,10 @@ interface IProps {
 
 interface IState {
     height: number;
-    historyIndex: number;
     width: number;
     map?: HTMLCanvasElement;
     actions: CanvasObject[];
-    redo: CanvasObject[];
+    currentIndex: number;
 };
 
 class Map extends React.Component<IProps, IState> {
@@ -26,10 +25,9 @@ class Map extends React.Component<IProps, IState> {
 
     public state: IState = {
         height: 480,
-        historyIndex: 0,
         width: 640,
         actions: [],
-        redo: []
+        currentIndex: 0
     };
 
     public constructor(props: IProps) {
@@ -62,6 +60,22 @@ class Map extends React.Component<IProps, IState> {
 
         if (prevProps.cursorOptions !== this.props.cursorOptions) {
             this.props.currentCursor?.setCursorOptions(this.props.cursorOptions);
+        }
+
+        if (this.state.currentIndex >= this.state.actions.length) {
+            this.setState({
+                currentIndex: this.state.actions.length - 1
+            });
+        }
+
+        if (prevState.currentIndex !== this.state.currentIndex) {
+            if (prevState.currentIndex > this.state.currentIndex) {
+                this.clearCanvas();
+            }
+            let currentIndex = 0;
+            while (currentIndex <= this.state.currentIndex && currentIndex < this.state.actions.length) {
+                this.draw(this.state.actions[currentIndex++]);
+            }
         }
     }
 
@@ -96,40 +110,39 @@ class Map extends React.Component<IProps, IState> {
         });
         this.props.currentCursor?.subscribe({
             next: canvasAction => {
-                this.enactAction(canvasAction);
+                this.newAction(canvasAction);
             }
         });
     }
 
     private undo(): void {
-        if (!this.state.actions.length) return;
+        if (this.state.currentIndex === 0) return;
 
+        this.setState({
+            currentIndex: this.state.currentIndex - 1
+        });
+    }
+
+    private redo(): void {
+        this.setState({
+            currentIndex: this.state.currentIndex + 1
+        });
+    }
+
+    private newAction(canvasAction: CanvasObject): void {
+        const actions = this.state.actions.slice(0, this.state.currentIndex + 1);
+        this.setState({
+            actions: [...actions, canvasAction],
+            currentIndex: this.state.currentIndex + 1
+        });
+    }
+
+    private clearCanvas(): void {
         const context = this.state.map?.getContext('2d') as CanvasRenderingContext2D;
 
         if (this.state.map && context) {
             context.clearRect(0, 0, this.state.map.width, this.state.map.height);
-
-            this.state.redo.push(this.state.actions.pop()!);
-
-            for (const action of this.state.actions) {
-                this.draw(action);
-            }
         }
-    }
-
-    private redo(): void {
-        if (!this.state.redo.length) return;
-
-        const canvasAction = this.state.redo.pop()!;
-
-        this.enactAction(canvasAction);
-    }
-
-    private enactAction(canvasAction: CanvasObject): void {
-        this.draw(canvasAction);
-        this.setState({
-            actions: [...this.state.actions, canvasAction]
-        });
     }
 
     private draw(canvasAction: CanvasObject): void {
