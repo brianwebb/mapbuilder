@@ -5,6 +5,7 @@ import { CursorOptions } from '../../Models/CursorOptions';
 export interface ICursor {
     name: string;
     canvasObjects$: Subject<CanvasObject>;
+    tempCanvasObjects$: Subject<CanvasObject>;
     mousedown(evt: MouseEvent): void;
     mousemove(evt: MouseEvent): void;
     mouseup(evt: MouseEvent): void;

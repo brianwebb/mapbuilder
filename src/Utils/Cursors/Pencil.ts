@@ -9,7 +9,7 @@ export class Pencil extends BaseCursor implements ICursor {
     mouseup(mouseEvent: MouseEvent): void {
         super.mouseup(mouseEvent);
 
-        this.emitAction();
+        this.emitObject();
     }
 
     buildPath(mouseEvents: MouseEvent[]): PathBuilder {

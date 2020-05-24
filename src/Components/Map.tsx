@@ -4,6 +4,7 @@ import { Pencil } from '../Utils/Cursors/Pencil';
 import { CanvasObject } from '../Models/CanvasObject';
 import { CursorOptions } from '../Models/CursorOptions';
 import './Map.scss';
+import { DummyCanvasObject } from '../Models/DummyCanvasObject';
 
 interface IProps {
     currentCursor?: ICursor;
@@ -14,7 +15,9 @@ interface IState {
     height: number;
     width: number;
     map?: HTMLCanvasElement;
+    tempMap?: HTMLCanvasElement;
     actions: CanvasObject[];
+    tempActions: CanvasObject[];
     currentIndex: number;
 };
 
@@ -26,8 +29,11 @@ class Map extends React.Component<IProps, IState> {
     public state: IState = {
         height: 480,
         width: 640,
-        actions: [],
-        currentIndex: 0
+        actions: [
+            new DummyCanvasObject()
+        ],
+        tempActions: [],
+        currentIndex: 1
     };
 
     public constructor(props: IProps) {
@@ -37,10 +43,11 @@ class Map extends React.Component<IProps, IState> {
 
     public render() {
         return (
-            <picture>
-                <canvas id='map' width={this.state.width} height={this.state.height}>
+            <picture id='map'>
+                <canvas id='main' width={this.state.width} height={this.state.height}>
                     <noscript>Some text here to show to non JS browsers</noscript>
                 </canvas>
+                <canvas id='temp' width={this.state.width} height={this.state.height}></canvas>
             </picture>
         );
     }
@@ -68,14 +75,15 @@ class Map extends React.Component<IProps, IState> {
             });
         }
 
-        if (prevState.currentIndex !== this.state.currentIndex) {
-            if (prevState.currentIndex > this.state.currentIndex) {
-                this.clearCanvas();
-            }
-            let currentIndex = 0;
-            while (currentIndex <= this.state.currentIndex && currentIndex < this.state.actions.length) {
-                this.draw(this.state.actions[currentIndex++]);
-            }
+        // Draw event
+        if (prevState.currentIndex < this.state.currentIndex) {
+            this.drawObjects(prevState.currentIndex);
+        }
+
+        // Undo event
+        if (prevState.currentIndex > this.state.currentIndex) {
+            this.clearMap(this.state.map);
+            this.drawObjects(0);
         }
     }
 
@@ -89,28 +97,42 @@ class Map extends React.Component<IProps, IState> {
         }
     }
 
+    private drawObjects(startIndex: number): void {
+        this.clearMap(this.state.tempMap);
+        while (startIndex <= this.state.currentIndex && startIndex < this.state.actions.length) {
+            this.draw(this.state.actions[startIndex++]);
+        }
+    }
+
     private activateCursor(): void {
-        this.setState((prevState: Readonly<IState>, prevProps: Readonly<IProps>): Pick<IState, "map"> => {
+        this.setState((prevState: Readonly<IState>, prevProps: Readonly<IProps>) => {
             if (prevState.map && prevProps.currentCursor) {
                 prevState.map.removeEventListener('mousedown', prevProps.currentCursor.mousedown);
                 prevState.map.removeEventListener('mousemove', prevProps.currentCursor.mousemove);
                 prevState.map.removeEventListener('mouseup', prevProps.currentCursor.mouseup);
             }
 
-            const newMap = this.findMap();
+            const map = this.findMap();
+            const tempMap = this.findTempMap();
             if (this.props.currentCursor) {
-                newMap.onmousedown = this.props.currentCursor.mousedown.bind(this.props.currentCursor);
-                newMap.onmousemove = this.props.currentCursor.mousemove.bind(this.props.currentCursor);
-                newMap.onmouseup = this.props.currentCursor.mouseup.bind(this.props.currentCursor);
+                tempMap.onmousedown = this.props.currentCursor.mousedown.bind(this.props.currentCursor);
+                tempMap.onmousemove = this.props.currentCursor.mousemove.bind(this.props.currentCursor);
+                tempMap.onmouseup = this.props.currentCursor.mouseup.bind(this.props.currentCursor);
             }
 
             return {
-                map: newMap
+                map,
+                tempMap
             }
         });
         this.props.currentCursor?.canvasObjects$.subscribe({
             next: canvasAction => {
                 this.newAction(canvasAction);
+            }
+        });
+        this.props.currentCursor?.tempCanvasObjects$.subscribe({
+            next: canvasAction => {
+                this.drawTemp(canvasAction);
             }
         });
     }
@@ -137,11 +159,23 @@ class Map extends React.Component<IProps, IState> {
         });
     }
 
-    private clearCanvas(): void {
-        const context = this.state.map?.getContext('2d') as CanvasRenderingContext2D;
+    private clearMap(map?: HTMLCanvasElement): void {
+        if (!map) return;
 
-        if (this.state.map && context) {
-            context.clearRect(0, 0, this.state.map.width, this.state.map.height);
+        const context = map.getContext('2d') as CanvasRenderingContext2D;
+
+        if (map && context) {
+            context.clearRect(0, 0, map.width, map.height);
+        }
+    }
+
+    private drawTemp(canvasAction: CanvasObject): void {
+        const context = this.state.tempMap?.getContext('2d') as CanvasRenderingContext2D;
+
+        if (this.state.tempMap && context) {
+            context.clearRect(0, 0, this.state.tempMap.width, this.state.tempMap.height);
+
+            canvasAction.draw(context);
         }
     }
 
@@ -154,10 +188,12 @@ class Map extends React.Component<IProps, IState> {
     }
 
     private findMap: MapFinder = getMap;
+    private findTempMap: MapFinder = getTempMap;
 };
 
 type MapFinder = () => HTMLCanvasElement;
 
-const getMap: MapFinder = () => document.getElementById('map') as HTMLCanvasElement;
+const getMap: MapFinder = () => document.getElementById('main') as HTMLCanvasElement;
+const getTempMap: MapFinder = () => document.getElementById('temp') as HTMLCanvasElement;
 
 export default Map;

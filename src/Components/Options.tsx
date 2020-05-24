@@ -1,4 +1,5 @@
 import React, { ChangeEvent } from 'react';
+import Color from 'color';
 import { CursorOptions } from '../Models/CursorOptions';
 import './Options.scss';
 import { ICursor } from '../Utils/Cursors/ICursor';
@@ -48,7 +49,7 @@ class Options extends React.Component<IProps, IState> {
         }
 
         const updatedOptions: CursorOptions = {
-            lineColour: name === 'lineColour' ? value : this.state.cursorOptions.lineColour,
+            lineColour: name === 'lineColour' ? Color.rgb(value) : this.state.cursorOptions.lineColour,
             lineWidth: name === 'lineWidth' ? value : this.state.cursorOptions.lineWidth,
             lineCap: this.state.cursorOptions.lineCap
         };
@@ -89,7 +90,7 @@ class Options extends React.Component<IProps, IState> {
                 {cursorOptions}
                 <label>
                     Colour
-                    <input type='color' name='lineColour' defaultValue={this.state.cursorOptions.lineColour} />
+                    <input type='color' name='lineColour' defaultValue={this.state.cursorOptions.lineColour.hex()} />
                 </label>
                 <label>
                     Width

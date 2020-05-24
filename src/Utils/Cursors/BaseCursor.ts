@@ -9,6 +9,7 @@ export abstract class BaseCursor implements ICursor {
     protected _cursorOptions: CursorOptions = CursorOptions.default;
 
     public canvasObjects$: Subject<CanvasObject> = new Subject();
+    public tempCanvasObjects$: Subject<CanvasObject> = new Subject();
 
     abstract name: string;
 
@@ -19,20 +20,13 @@ export abstract class BaseCursor implements ICursor {
     mousemove(mouseEvent: MouseEvent): void {
         if (mouseEvent.buttons){
             this._mouseEvents.push(mouseEvent);
+
+            this.emitTempObject();
         }
     }
 
     mouseup(mouseEvent: MouseEvent): void {
         this._mouseEvents.push(mouseEvent);
-    }
-
-    private mouseEvent(mouseEvent: MouseEvent): void {
-        this._mouseEvents.push(mouseEvent);
-
-        if (mouseEvent.button === 2) {
-            this._mouseEvents = [];
-            mouseEvent.stopImmediatePropagation();
-        }
     }
 
     setCursorOptions(cursorOptions: CursorOptions): void {
@@ -46,10 +40,16 @@ export abstract class BaseCursor implements ICursor {
 
     abstract buildPath(mouseEvents: MouseEvent[]): PathBuilder;
 
-    protected emitAction(): void {
+    protected emitTempObject(): void {
         if (!this._mouseEvents) return;
 
-        this.canvasObjects$.next(new CanvasObject(this._cursorOptions, this.buildPath(this._mouseEvents)));
+        this.tempCanvasObjects$.next(new CanvasObject(this._cursorOptions, this.buildPath(this._mouseEvents), true));
+    }
+
+    protected emitObject(): void {
+        if (!this._mouseEvents) return;
+
+        this.canvasObjects$.next(new CanvasObject(this._cursorOptions, this.buildPath(this._mouseEvents), false));
 
         this._mouseEvents = [];
     }

@@ -9,12 +9,11 @@ export class Line extends BaseCursor implements ICursor {
     mouseup(mouseEvent: MouseEvent): void {
         super.mouseup(mouseEvent);
 
-        this.emitAction();
+        this.emitObject();
     }
 
     buildPath(mouseEvents: MouseEvent[]): PathBuilder {
-        const points: Point[] = mouseEvents
-            .filter(event => event.type === 'mousedown' || event.type === 'mouseup')
+        const points: Point[] = [mouseEvents[0], mouseEvents[mouseEvents.length - 1]]
             .map(event => ({
                 x: event.clientX,
                 y: event.clientY

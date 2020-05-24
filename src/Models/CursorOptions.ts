@@ -1,17 +1,19 @@
+import Color from 'color';
+
 export class CursorOptions {
     public static default: CursorOptions = {
-        lineColour: 'black',
+        lineColour: Color.rgb('black'),
         lineWidth: 5,
         lineCap: 'round'
     };
 
-    constructor(lineColour: string, lineWidth: number, lineCap: CanvasLineCap) {
+    constructor(lineColour: Color, lineWidth: number, lineCap: CanvasLineCap) {
         this.lineColour = lineColour;
         this.lineWidth = lineWidth;
         this.lineCap = lineCap;
     }
 
-    lineColour: string;
+    lineColour: Color;
     lineWidth: number;
     lineCap: CanvasLineCap;
 }

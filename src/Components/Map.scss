@@ -1,4 +1,17 @@
 #map {
-    background-image: url('../Grid.svg');
     display: inline-block;
+    position: relative;
+
+    canvas {
+        position: absolute;
+    }
+
+    #main {
+        background-image: url('../Grid.svg');
+        z-index: 1;
+    }
+
+    #temp {
+        z-index: 2;
+    }
 }
