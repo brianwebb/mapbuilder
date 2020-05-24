@@ -2,7 +2,7 @@ import Color from 'color';
 
 export class CursorOptions {
     public static default: CursorOptions = {
-        lineColour: Color.rgb('black'),
+        lineColour: Color('#00000000'),
         lineWidth: 5,
         lineCap: 'round'
     };
