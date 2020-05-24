@@ -82,7 +82,7 @@ class Options extends React.Component<IProps, IState> {
         const cursorOptions = this.cursorOptions.map(builder =>
             <label key={builder.name}>
                 {builder.name}
-                <input type='radio' name='cursor' value={builder.name} defaultChecked={this.state.cursor.name  === builder.name} />
+                <input type='radio' name='cursor' value={builder.name} defaultChecked={this.state.cursor.name === builder.name} />
             </label>
         );
         return (

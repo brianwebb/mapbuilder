@@ -1,5 +1,5 @@
-import { CanvasObject } from "./CanvasObject";
-import { CursorOptions } from "./CursorOptions";
+import { CanvasObject } from './CanvasObject';
+import { CursorOptions } from './CursorOptions';
 
 export class DummyCanvasObject extends CanvasObject {
     constructor() {
