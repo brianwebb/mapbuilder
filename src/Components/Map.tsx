@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { ICursor } from '../Utils/Cursors/ICursor';
-import { Pencil } from '../Utils/Cursors/Pencil';
 import { CanvasObject } from '../Models/CanvasObject';
 import { CursorOptions } from '../Models/CursorOptions';
 import './Map.scss';
