@@ -108,7 +108,7 @@ class Map extends React.Component<IProps, IState> {
                 map: newMap
             }
         });
-        this.props.currentCursor?.subscribe({
+        this.props.currentCursor?.canvasObjects$.subscribe({
             next: canvasAction => {
                 this.newAction(canvasAction);
             }

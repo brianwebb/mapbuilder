@@ -1,13 +1,14 @@
 import { ICursor } from './ICursor';
-import { Subject, PartialObserver } from 'rxjs';
+import { Subject } from 'rxjs';
 import { CanvasObject, PathBuilder } from '../../Models/CanvasObject';
 import { CursorOptions } from '../../Models/CursorOptions';
 import { Point } from '../../Models/Point';
 
 export abstract class BaseCursor implements ICursor {
-    private _actions: Subject<CanvasObject> = new Subject();
     private _mouseEvents: MouseEvent[] = [];
     protected _cursorOptions: CursorOptions = CursorOptions.default;
+
+    public canvasObjects$: Subject<CanvasObject> = new Subject();
 
     abstract name: string;
 
@@ -38,13 +39,9 @@ export abstract class BaseCursor implements ICursor {
         this._cursorOptions = cursorOptions;
     }
 
-    subscribe(observer: PartialObserver<CanvasObject>): void {
-        this._actions.subscribe(observer);
-    }
-
     deactivate(): void {
         this._mouseEvents = [];
-        this._actions.complete();
+        this.canvasObjects$.complete();
     }
 
     abstract buildPath(mouseEvents: MouseEvent[]): PathBuilder;
@@ -52,7 +49,7 @@ export abstract class BaseCursor implements ICursor {
     protected emitAction(): void {
         if (!this._mouseEvents) return;
 
-        this._actions.next(new CanvasObject(this._cursorOptions, this.buildPath(this._mouseEvents)));
+        this.canvasObjects$.next(new CanvasObject(this._cursorOptions, this.buildPath(this._mouseEvents)));
 
         this._mouseEvents = [];
     }
