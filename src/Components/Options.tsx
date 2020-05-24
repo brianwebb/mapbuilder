@@ -77,7 +77,7 @@ class Options extends React.Component<IProps, IState> {
             <form id='options' onChange={this.valueChange}>
                 <label>
                     Pencil
-                    <input type='radio' name='cursor' value='Pencil' />
+                    <input type='radio' name='cursor' value='Pencil' defaultChecked />
                 </label>
                 <label>
                     Line
@@ -85,11 +85,11 @@ class Options extends React.Component<IProps, IState> {
                 </label>
                 <label>
                     Colour
-                    <input type='color' name='lineColour' value={this.state.cursorOptions.lineColour} />
+                    <input type='color' name='lineColour' defaultValue={this.state.cursorOptions.lineColour} />
                 </label>
                 <label>
                     Width
-                    <select name='lineWidth' value={this.state.cursorOptions.lineWidth}>
+                    <select name='lineWidth' defaultValue={this.state.cursorOptions.lineWidth}>
                         <option value='2'>2</option>
                         <option value='3'>3</option>
                         <option value='5'>5</option>
