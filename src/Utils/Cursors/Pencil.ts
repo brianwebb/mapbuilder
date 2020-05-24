@@ -10,8 +10,8 @@ export class Pencil extends BaseCursor implements ICursor {
         this.emitAction();
     }
 
-    buildPath(): PathBuilder {
-        const points: Point[] = this._mouseEvents.map(event => ({
+    buildPath(mouseEvents: MouseEvent[]): PathBuilder {
+        const points: Point[] = mouseEvents.map(event => ({
             x: event.clientX,
             y: event.clientY
         }));

@@ -6,8 +6,8 @@ import { Point } from '../../Models/Point';
 
 export abstract class BaseCursor implements ICursor {
     private _actions: Subject<CanvasObject> = new Subject();
+    private _mouseEvents: MouseEvent[] = [];
     protected _cursorOptions: CursorOptions = CursorOptions.default;
-    protected _mouseEvents: MouseEvent[] = [];
 
     mousedown(mouseEvent: MouseEvent): void {
         this._mouseEvents.push(mouseEvent);
@@ -20,6 +20,12 @@ export abstract class BaseCursor implements ICursor {
     }
 
     mouseup(mouseEvent: MouseEvent): void {
+        this._mouseEvents.push(mouseEvent);
+
+        this.emitAction();
+    }
+
+    private mouseEvent(mouseEvent: MouseEvent): void {
         this._mouseEvents.push(mouseEvent);
 
         if (mouseEvent.button === 2) {
@@ -41,18 +47,14 @@ export abstract class BaseCursor implements ICursor {
         this._actions.complete();
     }
 
-    abstract buildPath(): PathBuilder;
+    abstract buildPath(mouseEvents: MouseEvent[]): PathBuilder;
 
-    protected emitAction(keepContext: boolean = false): void {
+    protected emitAction(): void {
         if (!this._mouseEvents) return;
 
-        this._actions.next(new CanvasObject(this._cursorOptions, this.buildPath()));
+        this._actions.next(new CanvasObject(this._cursorOptions, this.buildPath(this._mouseEvents)));
 
-        const lastEvent = this._mouseEvents.pop()!;
-
-        this._mouseEvents = keepContext
-            ? [lastEvent]
-            : [];
+        this._mouseEvents = [];
     }
 
     protected getCursorPosition(canvasBounds: DOMRect, cursor: Point): Point {
