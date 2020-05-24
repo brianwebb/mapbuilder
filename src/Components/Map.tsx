@@ -2,9 +2,9 @@ import * as React from 'react';
 import {Subject, NextObserver} from 'rxjs';
 import { ICursor } from '../Utils/Cursors/ICursor';
 import { Pencil } from '../Utils/Cursors/Pencil';
-import { CanvasAction } from '../CanvasAction';
-import { BackgroundGrid } from '../Utils/Shapes/BackgroundGrid';
+import { CanvasObject } from '../Models/CanvasObject';
 import { CursorOptions } from '../Models/CursorOptions';
+import './Map.css';
 
 interface IProps {
     currentCursor?: ICursor;
@@ -16,7 +16,7 @@ interface IState {
     historyIndex: number;
     width: number;
     map?: HTMLCanvasElement;
-    actions: Subject<CanvasAction>;
+    actions: Subject<CanvasObject>;
 };
 
 class Map extends React.Component<IProps, IState> {
@@ -53,7 +53,6 @@ class Map extends React.Component<IProps, IState> {
                         this.enactHistory(this.state.map, actionState)
                     }
                 });
-                this.state.actions.next(new BackgroundGrid().draw);
                 this.activateCursor(this.state.map, this.props.currentCursor, {
                     next: canvasAction => this.state.actions.next(canvasAction)
                 });
@@ -76,18 +75,18 @@ class Map extends React.Component<IProps, IState> {
         }
     }
 
-    public enactHistory: CanvasActionEnactor = historyEnactor;
+    public enactHistory: CanvasObjectRenderer = historyEnactor;
     public activateCursor: CursorActivator = cursorActivator;
 };
 
-type CanvasActionEnactor = (canvas: HTMLCanvasElement | undefined, action: CanvasAction) => void;
-type CursorActivator = (canvas: HTMLCanvasElement | undefined, cursor: ICursor | undefined, observer: NextObserver<CanvasAction>) => void;
+type CanvasObjectRenderer = (canvas: HTMLCanvasElement | undefined, object: CanvasObject) => void;
+type CursorActivator = (canvas: HTMLCanvasElement | undefined, cursor: ICursor | undefined, observer: NextObserver<CanvasObject>) => void;
 
-const historyEnactor: CanvasActionEnactor = (canvas, action) => {
+const historyEnactor: CanvasObjectRenderer = (canvas, object) => {
     const context = canvas?.getContext('2d') as CanvasRenderingContext2D;
 
     if (context) {
-        action(context);
+        object.draw(context);
     }
 };
 

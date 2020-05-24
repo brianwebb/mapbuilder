@@ -1,12 +1,12 @@
 import { ICursor } from './ICursor';
 import { Subject, PartialObserver } from 'rxjs';
-import { CanvasAction } from '../../CanvasAction';
-import { Point } from '../../Models/Point';
+import { CanvasObject, PathBuilder } from '../../Models/CanvasObject';
 import { CursorOptions } from '../../Models/CursorOptions';
+import { Point } from '../../Models/Point';
 
 export abstract class BaseCursor implements ICursor {
     private _mouseEvents: MouseEvent[] = [];
-    private _actions: Subject<CanvasAction> = new Subject();
+    private _actions: Subject<CanvasObject> = new Subject();
     protected _cursorOptions: CursorOptions = CursorOptions.default;
 
     mousedown(mouseEvent: MouseEvent): void {
@@ -29,7 +29,7 @@ export abstract class BaseCursor implements ICursor {
         this._cursorOptions = cursorOptions;
     }
 
-    subscribe(observer: PartialObserver<CanvasAction>): void {
+    subscribe(observer: PartialObserver<CanvasObject>): void {
         this._actions.subscribe(observer);
     }
 
@@ -38,16 +38,12 @@ export abstract class BaseCursor implements ICursor {
         this._actions.complete();
     }
 
-    abstract draw(context: CanvasRenderingContext2D, canvasBounds: DOMRect, mouseEvents: MouseEvent[]): void;
+    abstract buildPath(mouseEvents: MouseEvent[]): PathBuilder;
 
     private emitAction(): void {
         if (!this._mouseEvents) return;
 
-        const mouseEvents = this._mouseEvents;
-        this._actions.next(context => {
-            const canvasBounds = context.canvas.getBoundingClientRect();
-            this.draw(context, canvasBounds, mouseEvents);
-        });
+        this._actions.next(new CanvasObject(this._cursorOptions, this.buildPath(this._mouseEvents)));
 
         this._mouseEvents = [];
     }

@@ -9,7 +9,7 @@ interface IState {
 
 class MapBuilder extends React.Component<{}, IState> {
     public state: IState = {
-        cursorOptions: new CursorOptions()
+        cursorOptions: CursorOptions.default
     };
 
     constructor(props: {}) {
