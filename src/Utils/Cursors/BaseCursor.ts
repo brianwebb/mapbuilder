@@ -9,6 +9,8 @@ export abstract class BaseCursor implements ICursor {
     private _mouseEvents: MouseEvent[] = [];
     protected _cursorOptions: CursorOptions = CursorOptions.default;
 
+    abstract name: string;
+
     mousedown(mouseEvent: MouseEvent): void {
         this._mouseEvents.push(mouseEvent);
     }

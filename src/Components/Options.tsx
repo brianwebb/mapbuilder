@@ -4,6 +4,7 @@ import './Options.scss';
 import { ICursor } from '../Utils/Cursors/ICursor';
 import { Pencil } from '../Utils/Cursors/Pencil';
 import { Line } from '../Utils/Cursors/Line';
+import { CursorBuilder } from '../Utils/Cursors/CursorBuilder';
 
 interface IProps {
     cursorOptionsChange: (cursorOptions: CursorOptions) => void,
@@ -20,6 +21,17 @@ class Options extends React.Component<IProps, IState> {
         cursorOptions: CursorOptions.default,
         cursor: new Pencil()
     };
+
+    private cursorOptions: CursorBuilder[] = [
+        {
+            name: 'Pencil',
+            build: () => new Pencil()
+        },
+        {
+            name: 'Line',
+            build: () => new Line()
+        }
+    ];
 
     constructor(props: IProps) {
         super(props);
@@ -51,20 +63,13 @@ class Options extends React.Component<IProps, IState> {
     }
 
     private setCursor(value: string): void {
-        let newCursor: ICursor;
-        switch (value) {
-            case 'Pencil':
-                newCursor = new Pencil();
-                break;
-            case 'Line':
-                newCursor = new Line();
-                break;
-            default:
-                throw new Error('Cursor not mapped');
+        const cursorBuilder = this.cursorOptions.find(builder => builder.name === value);
+        if (!cursorBuilder) {
+            throw new Error(`Could not find builder with name ${value}`);
         }
         this.setState(
             {
-                cursor: newCursor
+                cursor: cursorBuilder.build()
             },
             () => {
                 this.props.cursorChange(this.state.cursor);
@@ -73,16 +78,14 @@ class Options extends React.Component<IProps, IState> {
     }
 
     public render() {
+        const cursorOptions = this.cursorOptions.map(builder =>
+        <label>
+            {builder.name}
+            <input type='radio' name='cursor' value={builder.name} defaultChecked={this.state.cursor.name  === builder.name} />
+        </label>)
         return (
             <form id='options' onChange={this.valueChange}>
-                <label>
-                    Pencil
-                    <input type='radio' name='cursor' value='Pencil' defaultChecked />
-                </label>
-                <label>
-                    Line
-                    <input type='radio' name='cursor' value='Line' />
-                </label>
+                {cursorOptions}
                 <label>
                     Colour
                     <input type='color' name='lineColour' defaultValue={this.state.cursorOptions.lineColour} />

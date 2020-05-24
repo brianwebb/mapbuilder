@@ -4,6 +4,8 @@ import { PathBuilder } from '../../Models/CanvasObject';
 import { Point } from '../../Models/Point';
 
 export class Pencil extends BaseCursor implements ICursor {
+    name: string = typeof(Pencil).name;
+
     mouseup(mouseEvent: MouseEvent): void {
         super.mouseup(mouseEvent);
 
