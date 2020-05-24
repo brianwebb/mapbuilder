@@ -26,9 +26,9 @@ class Options extends React.Component<IProps, IState> {
         const name = target.name;
 
         const updatedOptions: CursorOptions = {
-            lineCap: name === 'lineCap' ? value : this.state.cursorOptions.lineCap,
             lineColour: name === 'lineColour' ? value : this.state.cursorOptions.lineColour,
-            lineWidth: name === 'lineWidth' ? value : this.state.cursorOptions.lineWidth
+            lineWidth: name === 'lineWidth' ? value : this.state.cursorOptions.lineWidth,
+            lineCap: this.state.cursorOptions.lineCap
         };
         this.setState(
             {
@@ -49,11 +49,14 @@ class Options extends React.Component<IProps, IState> {
                 </label>
                 <label>
                     Width
-                    <input type='number' name='lineWidth' value={this.state.cursorOptions.lineWidth} />
-                </label>
-                <label>
-                    Cap
-                    <input type='text' name='lineCap' value={this.state.cursorOptions.lineCap} />
+                    <select name='lineWidth' value={this.state.cursorOptions.lineWidth}>
+                        <option value='2'>2</option>
+                        <option value='3'>3</option>
+                        <option value='5'>5</option>
+                        <option value='8'>8</option>
+                        <option value='13'>13</option>
+                        <option value='21'>21</option>
+                    </select>
                 </label>
             </form>
         );

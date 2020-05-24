@@ -2,7 +2,19 @@
     display: inline-block;
     vertical-align: top;
 
-    input, label {
+    label {
+        padding: 10px;
+    }
+
+    input, select, label {
         display: block;
+        width: 50px;
+    }
+
+    select[name=lineWidth] {
+        option[value="2"] {
+            background-image: url('../logo.svg');
+            font-weight: bold;
+        }
     }
 }
