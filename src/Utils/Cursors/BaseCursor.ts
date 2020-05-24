@@ -23,8 +23,6 @@ export abstract class BaseCursor implements ICursor {
 
     mouseup(mouseEvent: MouseEvent): void {
         this._mouseEvents.push(mouseEvent);
-
-        this.emitAction();
     }
 
     private mouseEvent(mouseEvent: MouseEvent): void {

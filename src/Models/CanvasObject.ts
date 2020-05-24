@@ -1,12 +1,15 @@
 import { CursorOptions } from './CursorOptions';
+import { Guid } from '../Utils/Guid';
 
 export class CanvasObject {
-    _cursorOptions: CursorOptions;
-    _path: PathBuilder;
+    private _cursorOptions: CursorOptions;
+    private _path: PathBuilder;
+    id: string;
 
     constructor(cursorOptions: CursorOptions, path: PathBuilder) {
         this._cursorOptions = {...cursorOptions};
         this._path = path;
+        this.id = Guid.newGuid();
     }
 
     draw(context: CanvasRenderingContext2D): void {
