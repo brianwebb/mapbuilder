@@ -1,10 +1,9 @@
 export class Guid {
     static newGuid() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-        const r = Math.random() * 16 | 0;
-        // tslint:disable-next-line: no-bitwise
-        const v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-      });
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, character => {
+            const randomValue = Math.ceil((Math.random() * 16));
+            const value = character === 'x' ? randomValue : (randomValue % 4 + 8);
+            return value.toString(16);
+        });
     }
-  }
+}
