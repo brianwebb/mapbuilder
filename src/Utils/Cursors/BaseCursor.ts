@@ -15,6 +15,8 @@ export abstract class BaseCursor implements ICursor {
 
     mousedown(mouseEvent: MouseEvent): void {
         this._mouseEvents.push(mouseEvent);
+
+        mouseEvent.stopImmediatePropagation();
     }
 
     mousemove(mouseEvent: MouseEvent): void {
@@ -22,11 +24,15 @@ export abstract class BaseCursor implements ICursor {
             this._mouseEvents.push(mouseEvent);
 
             this.emitTempObject();
+
+            mouseEvent.stopImmediatePropagation();
         }
     }
 
     mouseup(mouseEvent: MouseEvent): void {
         this._mouseEvents.push(mouseEvent);
+
+        mouseEvent.stopImmediatePropagation();
     }
 
     setCursorOptions(cursorOptions: CursorOptions): void {

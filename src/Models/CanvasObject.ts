@@ -11,7 +11,7 @@ export class CanvasObject {
         this._path = path;
         this.id = Guid.newGuid();
         if (tempObject) {
-            this._cursorOptions.lineColour = this._cursorOptions.lineColour.negate();
+            this._cursorOptions.lineColour = this._cursorOptions.lineColour.lighten(0.5);
         }
     }
 
