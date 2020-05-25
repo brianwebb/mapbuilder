@@ -3,6 +3,10 @@ import { ICursor } from './ICursor';
 import { PathBuilder } from '../../Models/CanvasObject';
 import { Point } from '../../Models/Point';
 
+interface LinePoint extends Point {
+    shiftPushed: boolean;
+}
+
 export class Line extends BaseCursor implements ICursor {
     name: string = 'Line';
 
@@ -13,18 +17,31 @@ export class Line extends BaseCursor implements ICursor {
     }
 
     buildPath(mouseEvents: MouseEvent[]): PathBuilder {
-        const points: Point[] = [mouseEvents[0], mouseEvents[mouseEvents.length - 1]]
-            .map(event => ({
-                x: event.clientX,
-                y: event.clientY
-            }));
+        const start: LinePoint = {
+            shiftPushed: mouseEvents[0].shiftKey,
+            x: mouseEvents[0].clientX,
+            y: mouseEvents[0].clientY
+        };
+        const end: LinePoint = {
+            shiftPushed: mouseEvents[mouseEvents.length - 1].shiftKey,
+            x: mouseEvents[mouseEvents.length - 1].clientX,
+            y: mouseEvents[mouseEvents.length - 1].clientY
+        };
         return (canvasBounds: DOMRect) => {
             const path = new Path2D();
-            for (const point of points) {
-                const position = this.getCursorPosition(canvasBounds, point);
-                path.lineTo(position.x, position.y);
-                path.moveTo(position.x, position.y);
+            const startPosition = this.getCursorPosition(canvasBounds, start);
+            path.moveTo(startPosition.x, startPosition.y);
+            const endPosition = this.getCursorPosition(canvasBounds, end);
+            if (end.shiftPushed) {
+                const xDiff = Math.abs(endPosition.x - startPosition.x);
+                const yDiff = Math.abs(endPosition.y - startPosition.y);
+                if (xDiff >= yDiff) {
+                    endPosition.y = startPosition.y;
+                } else {
+                    endPosition.x = startPosition.x;
+                }
             }
+            path.lineTo(endPosition.x, endPosition.y);
             return path;
         }
     }
